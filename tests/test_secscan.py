@@ -116,8 +116,9 @@ class Diff(unittest.TestCase):
 class Registry(unittest.TestCase):
     def test_project_registry_loads(self):
         repos = config.load_registry(config.ROOT / "repos.toml")
-        self.assertIn(("ComfyUI_OpenClip", "local"), [(r.name, r.mode) for r in repos])
+        self.assertTrue(repos)
         self.assertEqual(len({r.name for r in repos}), len(repos))  # names are unique
+        self.assertTrue(all(r.mode in config.MODES for r in repos))
 
     def test_rejects_bad_mode(self):
         with tempfile.TemporaryDirectory() as d:
