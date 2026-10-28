@@ -7,7 +7,7 @@ Flame_PartnerNodes_OFX, CheckMyRender. Each part is started only when the owner 
 |---|---|---|
 | 1 | Scanner round 1 (seven tools, reports, diff, accepted risks, AI triage) | Done; scans the four repos locally |
 | 2 | Publish this repo (public, so public repos can call its reusable workflow) | Done |
-| 3 | CI on ComfyUI_OpenClip: tests, security scan, release workflow | In progress (draft PR) |
+| 3 | CI on ComfyUI_OpenClip: tests, security scan, release workflow | Built; PR checks green (draft PR #6); post-merge triggers pending |
 | 4 | Release verification policy (below) | Decided; first used by OpenClip 1.1.1 |
 | 5 | CodeQL in the scanner, all four repos (below) | Planned |
 | 6 | Show it to others: sample report from the seeded repo, one real CI run, short overview | After 3 and 5 |
