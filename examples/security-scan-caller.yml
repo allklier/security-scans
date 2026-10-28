@@ -1,0 +1,36 @@
+# Copy to .github/workflows/security-scan.yml in a repo that opts into CI mode.
+# Replace EVERY all-zero SHA below with the same full commit SHA of
+# allklier/security-scans (git ls-remote https://github.com/allklier/security-scans main).
+# The zeros are a placeholder only; the workflow fails until they are replaced.
+name: security-scan
+
+on:
+  pull_request:
+  schedule:
+    - cron: "17 5 * * 1"   # weekly, Monday 05:17 UTC: catches new CVEs in unchanged code
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  scan:
+    permissions:
+      contents: read
+    uses: allklier/security-scans/.github/workflows/scan.yml@0000000000000000000000000000000000000000 # REPLACE
+    with:
+      mode: ${{ github.event_name == 'pull_request' && 'pr' || 'full' }}
+      languages: python
+      fail-on: high
+      scanner-ref: "0000000000000000000000000000000000000000" # REPLACE (same SHA)
+
+  # Opt-in: show findings in the repo's Security tab (code scanning). Free on
+  # public repos; private repos need GitHub Code Security. Remove the job to opt out.
+  upload:
+    needs: scan
+    if: ${{ always() && needs.scan.result != 'skipped' }}
+    permissions:
+      contents: read
+      security-events: write # upload-sarif writes code-scanning alerts
+    uses: allklier/security-scans/.github/workflows/upload-sarif.yml@0000000000000000000000000000000000000000 # REPLACE
+    with:
+      mode: ${{ github.event_name == 'pull_request' && 'pr' || 'full' }}

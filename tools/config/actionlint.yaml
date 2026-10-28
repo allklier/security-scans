@@ -1,0 +1,2 @@
+# Empty on purpose: passed with -config-file so a scanned repo's
+# .github/actionlint.yaml ignore patterns are not applied.

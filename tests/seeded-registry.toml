@@ -1,0 +1,5 @@
+# Registry for the seeded test repo (tests/make-seeded-repo.sh). `make seeded`.
+[[repo]]
+name = "seeded-repo"
+url = "./test-work/seeded-repo"
+languages = ["python"]

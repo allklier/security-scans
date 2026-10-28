@@ -1,0 +1,2 @@
+# Empty on purpose: passed with --config so a scanned repo's own osv-scanner.toml
+# ignore lists are not applied (accepted risks go in .security-scans.toml).

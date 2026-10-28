@@ -1,0 +1,38 @@
+# Repos wired into security-scans. One [[repo]] table per repository.
+#
+#   name        folder name under work/ and reports/ (no slashes)
+#   github      "owner/repo" (cloned over https; private repos use gh's credentials)
+#   url         alternative to github: any git URL or local path (tests use this)
+#   mode        "local" (default): scanned by `make scan` only
+#               "ci": the repo also calls the reusable workflow (see docs/adding-a-repo.md);
+#               `make scan` still scans it on demand
+#   languages   semgrep-rules language dirs to use for SAST (python, c, javascript, ...)
+#   exclude     optional: paths kept out of SAST, e.g. ["third_party"] (vendored code)
+#   suppressions  optional: accepted-risks file in THIS project, used instead of the
+#               repo's own .security-scans.toml until that file exists in the repo
+
+[[repo]]
+name = "ComfyUI_OpenClip"
+github = "allklier/ComfyUI_OpenClip"
+mode = "local"
+languages = ["python"]
+
+[[repo]]
+name = "Flame_MatteRefine_OFX"
+github = "allklier/Flame_MatteRefine_OFX"
+mode = "local"
+languages = ["c", "python"]
+exclude = ["third_party"]
+
+[[repo]]
+name = "Flame_PartnerNodes_OFX"
+github = "allklier/Flame_PartnerNodes_OFX"
+mode = "local"
+languages = ["c", "python", "swift"]
+exclude = ["third_party"]
+
+[[repo]]
+name = "CheckMyRender"
+github = "allklier/CheckMyRender"
+mode = "local"
+languages = ["python"]

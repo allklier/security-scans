@@ -1,0 +1,41 @@
+# Optional: upload the SARIF produced by scan.yml to GitHub code scanning.
+# Call it as a second job, `needs:` the scan job, granting security-events: write
+# to this job only (see examples/security-scan-caller.yml). Free for public
+# repos; private repos need GitHub Code Security.
+name: security-scan-upload
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: the mode the scan job ran in ("pr" or "full"); selects the artifact
+        type: string
+        default: full
+
+permissions: {}
+
+jobs:
+  upload:
+    name: upload SARIF to code scanning
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write # upload-sarif writes code-scanning alerts
+    steps:
+      - name: Check out (maps SARIF paths to files)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Fetch reports from the scan job
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: security-scan-${{ inputs.mode }}
+          path: out
+
+      - name: Upload
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: out/head/raw
+          category: security-scans

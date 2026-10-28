@@ -1,0 +1,11 @@
+tools/bin/
+tools/venv/
+tools/rules/
+tools/env.sh
+work/
+reports/
+test-work/
+.agent-status/
+__pycache__/
+CLAUDE.local.md
+*.local.md

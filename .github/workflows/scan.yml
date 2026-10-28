@@ -1,0 +1,128 @@
+# Reusable security scan. Called from a scanned repo's own workflow, e.g.
+#
+#   jobs:
+#     scan:
+#       uses: allklier/security-scans/.github/workflows/scan.yml@<full commit SHA>
+#       with:
+#         scanner-ref: <the same SHA>
+#
+# (full example: examples/security-scan-caller.yml; docs: docs/adding-a-repo.md)
+#
+# This workflow only ever needs `contents: read`. Uploading SARIF to code
+# scanning is a separate reusable workflow (upload-sarif.yml) that a caller adds
+# as its own job only when it opts in, so no caller has to grant
+# security-events: write unless it wants the upload.
+#
+# mode "pr":   scans the PR base and head with the same pinned tools, fails only
+#              on findings that are new on head at or above `fail-on`
+#              (secrets: only the PR's own commits are scanned).
+# mode "full": scans the default checkout (full git history for secrets);
+#              never fails on findings, only on tool errors. For schedule/dispatch.
+#
+# Third-party actions are pinned by full commit SHA (tag in the comment,
+# looked up with `gh api repos/<owner>/<repo>/git/ref/tags/<tag>` on 2026-10-28).
+name: security-scan
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: '"pr" or "full"'
+        type: string
+        default: full
+      languages:
+        description: comma-separated semgrep-rules language dirs, e.g. "python" or "c,cpp"
+        type: string
+        default: ""
+      exclude:
+        description: comma-separated paths kept out of SAST (vendored third-party code), e.g. "third_party"
+        type: string
+        default: ""
+      fail-on:
+        description: lowest severity of a NEW finding that fails a PR (critical, high, medium, low)
+        type: string
+        default: high
+      scanner-ref:
+        description: commit of allklier/security-scans to run (use the same SHA as in `uses:`)
+        type: string
+        default: main
+
+permissions: {}
+
+jobs:
+  scan:
+    name: scan (${{ inputs.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repo being scanned
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: target
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out security-scans
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: allklier/security-scans
+          ref: ${{ inputs.scanner-ref }}
+          path: scanner
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned tools (checksum-verified)
+        env:
+          SECSCAN_BOOTSTRAP_PYTHON: python
+        run: scanner/scripts/install-tools.sh --venv
+
+      - name: Scan
+        env:
+          MODE: ${{ inputs.mode }}
+          LANGUAGES: ${{ inputs.languages }}
+          EXCLUDE: ${{ inputs.exclude }}
+          FAIL_ON: ${{ inputs.fail-on }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          source scanner/tools/env.sh
+          cd scanner
+          T="$GITHUB_WORKSPACE/target"
+          O="$GITHUB_WORKSPACE/out"
+          case "$MODE" in
+            full)
+              "$SECSCAN_PYTHON" -m secscan scan-path --path "$T" --name "$REPO_NAME" \
+                --out "$O/head" --languages "$LANGUAGES" --exclude "$EXCLUDE"
+              ;;
+            pr)
+              test -n "$BASE_SHA" || { echo "mode pr needs a pull_request event"; exit 2; }
+              git clone --quiet --no-checkout "$T" "$GITHUB_WORKSPACE/base"
+              git -C "$GITHUB_WORKSPACE/base" -c advice.detachedHead=false checkout --quiet "$BASE_SHA"
+              "$SECSCAN_PYTHON" -m secscan scan-path --path "$GITHUB_WORKSPACE/base" --name "$REPO_NAME" \
+                --out "$O/base" --languages "$LANGUAGES" --exclude "$EXCLUDE" --skip-tools gitleaks \
+                --suppressions "$T/.security-scans.toml"
+              "$SECSCAN_PYTHON" -m secscan scan-path --path "$T" --name "$REPO_NAME" \
+                --out "$O/head" --languages "$LANGUAGES" --exclude "$EXCLUDE" --gitleaks-log-opts "$BASE_SHA..$HEAD_SHA"
+              "$SECSCAN_PYTHON" -m secscan compare --base "$O/base" --head "$O/head" --fail-on "$FAIL_ON" \
+                | tee -a "$GITHUB_STEP_SUMMARY"
+              ;;
+            *) echo "unknown mode: $MODE"; exit 2 ;;
+          esac
+          if [ "$MODE" = full ]; then cat "$O/head/summary.md" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Keep reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: security-scan-${{ inputs.mode }}
+          path: out/
+          if-no-files-found: warn
+          retention-days: 30

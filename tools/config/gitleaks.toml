@@ -1,0 +1,4 @@
+# Passed with -c so a scanned repo's own .gitleaks.toml cannot replace the
+# rule set. Key verified in gitleaks v8.30.1 README ([extend] useDefault).
+[extend]
+useDefault = true

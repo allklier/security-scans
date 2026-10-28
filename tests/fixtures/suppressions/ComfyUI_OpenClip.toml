@@ -1,0 +1,20 @@
+# PROPOSED accepted risks for allklier/ComfyUI_OpenClip -- NOT ACTIVE.
+#
+# Draft of the .security-scans.toml that would be added at the root of the
+# OpenClip repo once the user agrees. Until then it is not wired into
+# repos.toml, so every finding stays active. To try it without touching
+# OpenClip, add  suppressions = "tests/fixtures/suppressions/ComfyUI_OpenClip.toml"
+# to its [[repo]] entry.
+#
+# Fingerprints from the 2026-10-28 scan of a5266e1 (reports/.../summary.md).
+# Deliberately NOT proposed: the lxml / opencolorio CVE findings (the declared
+# version floors are vulnerable; raise the floors instead) and the missing
+# lockfile findings (user decision; see the scan report).
+
+[[accept]]
+fingerprint = "18b1847de7117ac2"
+rule = "python.lang.security.audit.dynamic-urllib-use-detected"
+path = "acceptance/run_acceptance.py"
+reason = "Developer-only acceptance script; URL is the developer's own local ComfyUI server passed on the command line, never untrusted input"
+expires = 2027-04-30
+owner = "allklier"
