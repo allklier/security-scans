@@ -14,8 +14,8 @@
 [[repo]]
 name = "ComfyUI_OpenClip"
 github = "allklier/ComfyUI_OpenClip"
-mode = "local"
-languages = ["python"]
+mode = "ci"
+languages = ["python", "javascript"]
 
 [[repo]]
 name = "Flame_MatteRefine_OFX"
