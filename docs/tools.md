@@ -22,8 +22,9 @@ Not added (cost > value for now): GuardDog (needs its own semgrep + yara; OSV
 already covers known-malicious packages), Bandit (overlaps Semgrep's Python
 security rules), pip-audit (overlaps OSV for PyPI), hadolint (Trivy covers
 Dockerfile security), TruffleHog (live-key verification means network calls
-with found secrets; can be added later), CodeQL (free only for public repos;
-can be added per repo via GitHub's own default setup).
+with found secrets; can be added later), CodeQL (planned for all
+scanned repos: see `docs/plan.md` §5; its licence allows it only on code under an
+OSI-approved licence).
 
 **Pinning policy**: a release must be at least 14 days old when pinned. Trivy
 had a supply-chain compromise in March 2026 (GHSA-69fq-xp46-6x23; malicious

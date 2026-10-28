@@ -94,6 +94,11 @@ Not yet run on GitHub (this repo isn't published yet).
 `docs/adding-a-repo.md`; draft Claude Code skill in
 `skills/add-repo-to-security-scans/SKILL.md`.
 
+## Plan
+
+Next steps (CI on OpenClip, release verification policy, CodeQL for all scanned repos):
+`docs/plan.md`.
+
 ## Tests
 
 - `make test`: unit tests (fingerprints, suppressions, lockfiles, diff, registry).
