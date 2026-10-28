@@ -7,10 +7,10 @@ Flame_PartnerNodes_OFX, CheckMyRender. Each part is started only when the owner 
 |---|---|---|
 | 1 | Scanner round 1 (seven tools, reports, diff, accepted risks, AI triage) | Done; scans the four repos locally |
 | 2 | Publish this repo (public, so public repos can call its reusable workflow) | Done |
-| 3 | CI on ComfyUI_OpenClip: tests, security scan, release workflow | Built; PR checks green (draft PR #6); post-merge triggers pending |
-| 4 | Release verification policy (below) | Decided; first used by OpenClip 1.1.1 |
+| 3 | CI on ComfyUI_OpenClip: tests, security scan, release workflow | Done: PR #6 merged; PR, manual full-scan and release runs green. First weekly scheduled run pending (Mondays 05:17 UTC) |
+| 4 | Release verification policy (below) | In use: OpenClip v1.1.1 released by the workflow as a patch (normal release, LIGHTLY TESTED). Promote not yet used |
 | 5 | CodeQL in the scanner, all four repos (below) | Planned |
-| 6 | Show it to others: sample report from the seeded repo, one real CI run, short overview | After 3 and 5 |
+| 6 | Show it to others: sample report from the seeded repo, one real CI run, short overview | Draft written (private); CodeQL section waits for 5 |
 
 ## 3. CI on ComfyUI_OpenClip (the reference repo)
 
@@ -23,7 +23,7 @@ OpenClip is the first repo with CI and serves as the worked example for the othe
 - A live ComfyUI acceptance run is deferred: it needs ComfyUI on the runner and a test clip that
   can be published. Until then it stays a manual, off-CI test tier.
 
-Details live in OpenClip's `docs/ci.md` once merged.
+Details: OpenClip's `docs/ci.md`. Result on the first full scan after the fixes: 0 high (was 1), 3 accepted risks with reasons and expiry, 2 low notes.
 
 ## 4. Release verification policy ("policy C")
 

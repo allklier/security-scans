@@ -87,7 +87,7 @@ fails only on findings new on the PR head at or above `fail-on` (default
 high); `full` mode for the weekly schedule and manual runs. SARIF upload to
 code scanning is a separate reusable workflow (`upload-sarif.yml`) a caller
 adds only if it wants it. Example caller: `examples/security-scan-caller.yml`.
-First real run 2026-10-28: ComfyUI_OpenClip PR #6 (PR mode, green). Weekly and manual runs from a caller not yet seen.
+In use by ComfyUI_OpenClip since 2026-10-28: PR mode, a manual full scan, and a release run all green. The first weekly scheduled run is still to come.
 
 ## Adding a repo
 
